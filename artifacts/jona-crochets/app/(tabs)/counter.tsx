@@ -157,7 +157,7 @@ export default function CounterScreen() {
       {!selected ? (
         <View style={styles.emptyWrapper}>
           <EmptyState
-            icon="counter"
+            icon="numeric"
             title="אין מונים עדיין"
             subtitle="צרי מונה לשורות, תפרים, סיבובים או חזרות"
             actionLabel="צרי מונה"

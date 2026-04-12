@@ -272,10 +272,10 @@ function ItemDetailModal({ item, colors, isFavorite, onToggleFavorite, onClose }
             <Text style={[styles.modalDesc, { color: colors.mutedForeground }]}>{item.description}</Text>
 
             <View style={styles.metaGrid}>
-              <MetaItem icon="signal" label="רמה" value={LEVEL_LABELS[item.skillLevel]} color={levelColor} colors={colors} />
+              <MetaItem icon="star-outline" label="רמה" value={LEVEL_LABELS[item.skillLevel]} color={levelColor} colors={colors} />
               <MetaItem icon="clock-outline" label="זמן" value={item.estimatedTime} color={colors.accent} colors={colors} />
-              <MetaItem icon="hook" label="מחט" value={item.hookSize} color={colors.lavender} colors={colors} />
-              <MetaItem icon="weight" label="חוט" value={item.yarnType} color={colors.sage} colors={colors} />
+              <MetaItem icon="needle" label="מחט" value={item.hookSize} color={colors.lavender} colors={colors} />
+              <MetaItem icon="palette-swatch-outline" label="חוט" value={item.yarnType} color={colors.sage} colors={colors} />
             </View>
 
             <Text style={[styles.sectionLabel, { color: colors.foreground }]}>חומרים דרושים</Text>
