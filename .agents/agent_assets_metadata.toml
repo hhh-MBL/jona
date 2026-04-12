@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "hPWIR0DIfIH1lRWpJBbhw"
+uri = "file://artifacts/jona-crochets/assets/images/icon.png"
+type = "image"
+title = "jona crochets app icon"
+
+[[generated]]
+id = "vSCu2TREfG85Xb7m_XPPb"
+uri = "file://artifacts/jona-crochets/assets/images/hero_plushies.png"
+type = "image"
+title = "crochet plushies hero"
+
+[[generated]]
+id = "CqojSY_D4gO_GJa2DVVCy"
+uri = "file://artifacts/jona-crochets/assets/images/hero_yarn.png"
+type = "image"
+title = "yarn stash hero"

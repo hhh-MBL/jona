@@ -1,0 +1,240 @@
+Create a beautiful mobile app for Android called “Crochet Companion” for my girlfriend, who loves crochet. The app should feel warm, elegant, cozy, feminine, and handmade, with a soft and polished design. The goal is to make an app she will genuinely enjoy using every day for her crochet projects, both practical and inspiring.
+
+This should be designed like a real phone app, not a plain website. It should be mobile-first, smooth, responsive, and easy to turn into an APK. The UI should look modern, cute, relaxing, and premium, with rounded corners, soft shadows, pleasant spacing, and a calm color palette like cream, beige, dusty pink, soft lavender, sage green, and warm neutrals. Add subtle crochet-inspired details in the design, but keep it clean and not overloaded.
+
+The app should include these main features:
+
+1. Row Counter
+
+A very easy and satisfying crochet row counter screen.
+
+Requirements:
+
+Big main counter button to increase row count by 1
+Button to decrease by 1
+Reset button with confirmation popup
+Ability to create multiple counters for different projects
+Each counter should have a project name
+Option to add notes for the project
+Option to track not only rows, but also stitches, repeats, or rounds
+Option to set a target row count and show progress visually
+Haptic feedback or a visual tap effect when pressing the counter
+Lock screen / keep screen awake option while counting
+Auto-save so progress is never lost
+Optional voice input or large easy-tap mode for hands-busy use
+2. Crochet Price Calculator
+
+A pricing tool to help her calculate how much to charge for crochet items.
+
+Requirements:
+
+Input fields for:
+material cost
+yarn cost
+accessories cost
+hours worked
+hourly rate
+difficulty level
+custom order fee
+packaging cost
+shipping cost
+profit margin
+Show automatic total price calculation
+Show recommended selling price
+Show cost breakdown clearly
+Option to save pricing templates
+Option to choose currency
+Option for beginner/simple mode and advanced mode
+Add a “gift mode” that calculates project cost without profit
+Add a “market suggestion” area that shows low / standard / premium pricing suggestions based on the entered values
+3. Crochet Library / Inspiration Library
+
+A library of crochet ideas, patterns, and inspiration for things she can make in her free time.
+
+Requirements:
+
+A clean browse screen with categories such as:
+Plushies / Amigurumi
+Flowers
+Clothes
+Bags
+Blankets
+Home decor
+Baby items
+Accessories
+Seasonal / holiday
+Quick small projects
+Gifts
+Search bar
+Filters by difficulty, time required, yarn type, project size, and category
+Favorite / save feature
+Each item should have:
+title
+image
+short description
+skill level
+estimated time
+materials needed
+link button for full pattern/tutorial
+The library should be built in a way that later we can connect it to an external source or fetch items from an API/database/feed
+Create it with mock/sample data for now, but structure it so it is easy to replace with real fetched data later
+Add a “Surprise Me” button that suggests a random crochet project
+4. Project Tracker
+
+A personal crochet project management area.
+
+Requirements:
+
+Create new project
+Add project image
+Project name
+Status: planning / in progress / paused / finished
+Start date
+Deadline
+Notes section
+Materials list
+Pattern link or pattern reference
+Progress percentage
+Connected row counter
+Ability to mark a project as gift, sale item, or personal
+Archive completed projects
+Sort by newest, oldest, active, completed
+5. Yarn & Materials Stash Tracker
+
+A simple inventory system for crochet supplies.
+
+Requirements:
+
+Track yarn brand
+Yarn color
+Yarn type
+Weight/category
+Amount owned
+Hook sizes available
+Accessories like safety eyes, stuffing, markers, buttons
+Add photos if possible
+Low stock warning
+Filter and search
+Quick add and edit
+Option to connect stash items to a project
+6. Favorites / Wishlist
+
+A section for ideas she wants to make later.
+
+Requirements:
+
+Save library items into wishlist
+Add personal wishlist items manually
+Tag items by priority
+Mark as “easy weekend project,” “gift idea,” or “big future project”
+Move item from wishlist into active project with one tap
+7. Notes & Measurements
+
+A helpful section for storing crochet-related notes.
+
+Requirements:
+
+Project notes
+Stitch notes
+Pattern adjustments
+Size/measurement notes
+Custom client notes
+Ability to create simple text notes quickly
+Notes should be searchable
+8. Progress Stats
+
+A cute dashboard showing her crochet activity.
+
+Requirements:
+
+Total rows counted
+Projects completed
+Current active projects
+Favorite category
+Estimated hours spent crocheting
+Items made this month
+Revenue estimate from sold items
+Simple graphs or progress cards
+Keep it visually beautiful and motivating
+9. Reminders
+
+Helpful reminders for crochet tasks.
+
+Requirements:
+
+Remind to continue a project
+Remind to buy yarn/materials
+Deadline reminder for gifts/orders
+Daily or weekly crochet time reminder
+Reminders should feel gentle and cozy, not aggressive
+10. Personal Touch / Cozy Feel
+
+This app is for someone special, so make it feel personal and lovable.
+
+Requirements:
+
+Cute welcome message on the home screen
+Inspirational crochet quotes or rotating cozy messages
+Warm onboarding
+Optional profile personalization with her name and avatar
+Gentle celebratory animations when completing a project or reaching a target
+Make the experience feel comforting and joyful
+App Structure
+
+Use a bottom navigation bar with sections like:
+
+Home
+Counter
+Library
+Projects
+Tools
+Profile
+
+Suggested home screen cards:
+
+Continue current project
+Quick row counter
+Saved ideas
+Price calculator
+Yarn stash
+Today’s inspiration
+Design Style
+Soft feminine but classy
+Handmade / cozy / elegant
+Rounded UI
+Smooth animations
+Excellent spacing
+Mobile-first layout
+Easy to read
+Buttons large enough for comfortable tapping
+Not childish, but sweet and beautiful
+Make it feel like an app someone would actually keep on their phone
+Technical Requirements
+Build it as a real mobile app style experience suitable for APK export
+Fast loading
+Offline-friendly for core features like row counter, notes, and projects
+Local storage or database support for saved progress
+Prepare library data in a fetch-friendly structure so it can later connect to a real external source
+Clean architecture and scalable structure
+Use sample data where needed
+Include placeholder API integration points for the crochet library
+Make sure all important user data auto-saves
+Extra Features You Should Add
+
+Please also add a few thoughtful features that crochet lovers would likely enjoy, such as:
+
+Hook size guide
+Yarn weight guide
+Stitch abbreviation reference
+Crochet conversion helper
+Random project generator
+Time estimator for projects
+Gift planner for birthdays/holidays
+Photo gallery for finished projects
+Mood board / inspiration board
+Dark mode and light mode
+Export project summary as image or PDF
+Simple backup/export feature if possible
+Overall Goal
+
+The app should feel like the perfect crochet companion: useful, inspiring, beautiful, and cozy. It should help with counting rows, tracking projects, calculating prices, organizing supplies, and discovering new ideas to crochet. Most importantly, it should feel special and enjoyable to use every day.
