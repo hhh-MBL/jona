@@ -15,7 +15,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useApp } from "@/context/AppContext";
@@ -28,6 +27,12 @@ const LEVEL_COLORS: Record<string, string> = {
   beginner: "#8faa8b",
   intermediate: "#d4a853",
   advanced: "#c27d82",
+};
+
+const LEVEL_LABELS: Record<string, string> = {
+  beginner: "מתחילה",
+  intermediate: "בינוני",
+  advanced: "מתקדמת",
 };
 
 export default function LibraryScreen() {
@@ -69,13 +74,13 @@ export default function LibraryScreen() {
         style={[styles.header, { paddingTop: topPad + 12 }]}
       >
         <View style={styles.headerRow}>
-          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Library</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>ספרייה</Text>
           <TouchableOpacity
             style={[styles.surpriseBtn, { backgroundColor: colors.lavender }]}
             onPress={handleSurprise}
           >
             <MaterialCommunityIcons name="dice-multiple" size={18} color="#fff" />
-            <Text style={styles.surpriseBtnText}>Surprise Me</Text>
+            <Text style={styles.surpriseBtnText}>הפתיעי אותי</Text>
           </TouchableOpacity>
         </View>
 
@@ -83,7 +88,7 @@ export default function LibraryScreen() {
           <MaterialCommunityIcons name="magnify" size={20} color={colors.mutedForeground} />
           <TextInput
             style={[styles.searchInput, { color: colors.foreground }]}
-            placeholder="Search patterns, tags..."
+            placeholder="חיפוש תבניות, תגיות..."
             placeholderTextColor={colors.mutedForeground}
             value={search}
             onChangeText={setSearch}
@@ -140,7 +145,7 @@ export default function LibraryScreen() {
                   { color: filter === level ? "#fff" : level === "all" ? colors.primary : LEVEL_COLORS[level] },
                 ]}
               >
-                {level === "all" ? "All Levels" : level.charAt(0).toUpperCase() + level.slice(1)}
+                {level === "all" ? "כל הרמות" : LEVEL_LABELS[level]}
               </Text>
             </TouchableOpacity>
           ))}
@@ -150,8 +155,8 @@ export default function LibraryScreen() {
       {filtered.length === 0 ? (
         <EmptyState
           icon="bookshelf"
-          title="No patterns found"
-          subtitle="Try a different search or category"
+          title="לא נמצאו תבניות"
+          subtitle="נסי חיפוש או קטגוריה אחרת"
         />
       ) : (
         <FlatList
@@ -186,18 +191,8 @@ export default function LibraryScreen() {
   );
 }
 
-function LibraryCard({
-  item,
-  colors,
-  isFavorite,
-  onToggleFavorite,
-  onPress,
-}: {
-  item: LibraryItem;
-  colors: any;
-  isFavorite: boolean;
-  onToggleFavorite: () => void;
-  onPress: () => void;
+function LibraryCard({ item, colors, isFavorite, onToggleFavorite, onPress }: {
+  item: LibraryItem; colors: any; isFavorite: boolean; onToggleFavorite: () => void; onPress: () => void;
 }) {
   const levelColor = LEVEL_COLORS[item.skillLevel];
 
@@ -212,7 +207,7 @@ function LibraryCard({
         style={[styles.cardGradient, { borderRadius: colors.radius }]}
       >
         <View style={styles.cardIconArea}>
-          <MaterialCommunityIcons name="yarn" size={36} color={levelColor} />
+          <MaterialCommunityIcons name="needle" size={36} color={levelColor} />
           {item.isFeatured && (
             <View style={[styles.featuredBadge, { backgroundColor: colors.primary }]}>
               <MaterialCommunityIcons name="star" size={10} color="#fff" />
@@ -228,12 +223,10 @@ function LibraryCard({
           </Text>
           <View style={styles.cardMeta}>
             <View style={[styles.levelDot, { backgroundColor: levelColor }]} />
-            <Text style={[styles.cardLevel, { color: levelColor }]}>{item.skillLevel}</Text>
+            <Text style={[styles.cardLevel, { color: levelColor }]}>{LEVEL_LABELS[item.skillLevel]}</Text>
           </View>
           <View style={styles.cardFooter}>
-            <Text style={[styles.cardTime, { color: colors.mutedForeground }]}>
-              {item.estimatedTime}
-            </Text>
+            <Text style={[styles.cardTime, { color: colors.mutedForeground }]}>{item.estimatedTime}</Text>
             <TouchableOpacity onPress={onToggleFavorite}>
               <MaterialCommunityIcons
                 name={isFavorite ? "heart" : "heart-outline"}
@@ -248,18 +241,8 @@ function LibraryCard({
   );
 }
 
-function ItemDetailModal({
-  item,
-  colors,
-  isFavorite,
-  onToggleFavorite,
-  onClose,
-}: {
-  item: LibraryItem;
-  colors: any;
-  isFavorite: boolean;
-  onToggleFavorite: () => void;
-  onClose: () => void;
+function ItemDetailModal({ item, colors, isFavorite, onToggleFavorite, onClose }: {
+  item: LibraryItem; colors: any; isFavorite: boolean; onToggleFavorite: () => void; onClose: () => void;
 }) {
   const levelColor = LEVEL_COLORS[item.skillLevel];
 
@@ -280,11 +263,8 @@ function ItemDetailModal({
         </View>
 
         <ScrollView contentContainerStyle={styles.modalBody}>
-          <LinearGradient
-            colors={[levelColor + "30", colors.background]}
-            style={styles.modalHero}
-          >
-            <MaterialCommunityIcons name="yarn" size={72} color={levelColor} />
+          <LinearGradient colors={[levelColor + "30", colors.background]} style={styles.modalHero}>
+            <MaterialCommunityIcons name="needle" size={72} color={levelColor} />
           </LinearGradient>
 
           <View style={styles.modalInfo}>
@@ -292,13 +272,13 @@ function ItemDetailModal({
             <Text style={[styles.modalDesc, { color: colors.mutedForeground }]}>{item.description}</Text>
 
             <View style={styles.metaGrid}>
-              <MetaItem icon="signal" label="Level" value={item.skillLevel} color={levelColor} colors={colors} />
-              <MetaItem icon="clock-outline" label="Time" value={item.estimatedTime} color={colors.accent} colors={colors} />
-              <MetaItem icon="hook" label="Hook" value={item.hookSize} color={colors.lavender} colors={colors} />
-              <MetaItem icon="weight" label="Yarn" value={item.yarnType} color={colors.sage} colors={colors} />
+              <MetaItem icon="signal" label="רמה" value={LEVEL_LABELS[item.skillLevel]} color={levelColor} colors={colors} />
+              <MetaItem icon="clock-outline" label="זמן" value={item.estimatedTime} color={colors.accent} colors={colors} />
+              <MetaItem icon="hook" label="מחט" value={item.hookSize} color={colors.lavender} colors={colors} />
+              <MetaItem icon="weight" label="חוט" value={item.yarnType} color={colors.sage} colors={colors} />
             </View>
 
-            <Text style={[styles.sectionLabel, { color: colors.foreground }]}>Materials Needed</Text>
+            <Text style={[styles.sectionLabel, { color: colors.foreground }]}>חומרים דרושים</Text>
             {item.materials.map((m, i) => (
               <View key={i} style={styles.materialRow}>
                 <View style={[styles.materialDot, { backgroundColor: colors.primary }]} />
@@ -306,7 +286,7 @@ function ItemDetailModal({
               </View>
             ))}
 
-            <Text style={[styles.sectionLabel, { color: colors.foreground }]}>Tags</Text>
+            <Text style={[styles.sectionLabel, { color: colors.foreground }]}>תגיות</Text>
             <View style={styles.tagsRow}>
               {item.tags.map(tag => (
                 <View key={tag} style={[styles.tag, { backgroundColor: colors.muted, borderRadius: 12 }]}>
@@ -321,13 +301,13 @@ function ItemDetailModal({
                 onPress={() => Linking.openURL(item.patternUrl!)}
               >
                 <MaterialCommunityIcons name="open-in-new" size={18} color="#fff" />
-                <Text style={styles.patternBtnText}>View Full Pattern</Text>
+                <Text style={styles.patternBtnText}>פתחי תבנית מלאה</Text>
               </TouchableOpacity>
             ) : (
               <View style={[styles.noPatternArea, { backgroundColor: colors.muted, borderRadius: colors.radius }]}>
                 <MaterialCommunityIcons name="information-outline" size={20} color={colors.mutedForeground} />
                 <Text style={[styles.noPatternText, { color: colors.mutedForeground }]}>
-                  Pattern link will be added soon
+                  קישור לתבנית יתווסף בקרוב
                 </Text>
               </View>
             )}
@@ -355,14 +335,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 20, paddingBottom: 12 },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
   headerTitle: { fontSize: 28, fontWeight: "700" },
-  surpriseBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
+  surpriseBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
   surpriseBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
   searchBar: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 12 },
   searchInput: { flex: 1, fontSize: 15 },
@@ -376,32 +349,17 @@ const styles = StyleSheet.create({
   card: { width: cardWidth, borderWidth: 1, overflow: "hidden" },
   cardGradient: { padding: 14 },
   cardIconArea: { alignItems: "center", marginBottom: 10 },
-  featuredBadge: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  featuredBadge: { position: "absolute", top: 0, right: 0, width: 18, height: 18, borderRadius: 9, alignItems: "center", justifyContent: "center" },
   cardContent: {},
   cardTitle: { fontSize: 14, fontWeight: "700", marginBottom: 4 },
   cardDesc: { fontSize: 11, lineHeight: 16, marginBottom: 8 },
   cardMeta: { flexDirection: "row", alignItems: "center", gap: 5, marginBottom: 6 },
   levelDot: { width: 6, height: 6, borderRadius: 3 },
-  cardLevel: { fontSize: 11, fontWeight: "600", textTransform: "capitalize" },
+  cardLevel: { fontSize: 11, fontWeight: "600" },
   cardFooter: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   cardTime: { fontSize: 10 },
   modalContainer: { flex: 1 },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
+  modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16 },
   modalHero: { alignItems: "center", paddingVertical: 40 },
   modalBody: { paddingBottom: 40 },
   modalInfo: { paddingHorizontal: 20 },
@@ -410,7 +368,7 @@ const styles = StyleSheet.create({
   metaGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 24 },
   metaItem: { width: "46%", padding: 12, gap: 4 },
   metaLabel: { fontSize: 10, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
-  metaValue: { fontSize: 13, fontWeight: "700", textTransform: "capitalize" },
+  metaValue: { fontSize: 13, fontWeight: "700" },
   sectionLabel: { fontSize: 15, fontWeight: "700", marginBottom: 10 },
   materialRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
   materialDot: { width: 6, height: 6, borderRadius: 3 },
@@ -418,19 +376,8 @@ const styles = StyleSheet.create({
   tagsRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 24 },
   tag: { paddingHorizontal: 10, paddingVertical: 4 },
   tagText: { fontSize: 12 },
-  patternBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 14,
-  },
+  patternBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14 },
   patternBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
-  noPatternArea: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    padding: 14,
-  },
+  noPatternArea: { flexDirection: "row", alignItems: "center", gap: 8, padding: 14 },
   noPatternText: { fontSize: 13 },
 });

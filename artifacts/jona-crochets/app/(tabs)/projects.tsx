@@ -2,7 +2,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
-  Alert,
   Modal,
   Platform,
   ScrollView,
@@ -13,8 +12,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/context/AppContext";
@@ -32,10 +31,17 @@ const STATUS_COLORS: Record<ProjectStatus, string> = {
 };
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
-  planning: "Planning",
-  in_progress: "In Progress",
-  paused: "Paused",
-  finished: "Finished",
+  planning: "בתכנון",
+  in_progress: "בתהליך",
+  paused: "מושהה",
+  finished: "הושלם",
+};
+
+const SORT_LABELS: Record<SortOption, string> = {
+  newest: "חדש",
+  oldest: "ישן",
+  active: "פעיל",
+  completed: "הושלם",
 };
 
 export default function ProjectsScreen() {
@@ -43,10 +49,10 @@ export default function ProjectsScreen() {
   const insets = useSafeAreaInsets();
   const { projects, addProject, updateProject, deleteProject } = useApp();
   const [showCreate, setShowCreate] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [filterStatus, setFilterStatus] = useState<ProjectStatus | "all">("all");
   const [showArchived, setShowArchived] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const [newName, setNewName] = useState("");
   const [newStatus, setNewStatus] = useState<ProjectStatus>("planning");
@@ -66,6 +72,8 @@ export default function ProjectsScreen() {
       if (sortBy === "completed") return a.status === "finished" ? -1 : 1;
       return 0;
     });
+
+  const projectToDelete = projects.find(p => p.id === deleteTarget);
 
   function handleCreate() {
     if (!newName.trim()) return;
@@ -107,7 +115,7 @@ export default function ProjectsScreen() {
         style={[styles.header, { paddingTop: topPad + 12 }]}
       >
         <View style={styles.headerRow}>
-          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Projects</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>פרויקטים</Text>
           <TouchableOpacity
             style={[styles.addBtn, { backgroundColor: colors.accent }]}
             onPress={() => setShowCreate(true)}
@@ -126,21 +134,14 @@ export default function ProjectsScreen() {
                 {
                   backgroundColor:
                     filterStatus === s
-                      ? s === "all"
-                        ? colors.accent
-                        : STATUS_COLORS[s as ProjectStatus]
+                      ? s === "all" ? colors.accent : STATUS_COLORS[s as ProjectStatus]
                       : colors.muted,
                   borderRadius: 20,
                 },
               ]}
             >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  { color: filterStatus === s ? "#fff" : colors.mutedForeground },
-                ]}
-              >
-                {s === "all" ? "All" : STATUS_LABELS[s as ProjectStatus]}
+              <Text style={[styles.filterChipText, { color: filterStatus === s ? "#fff" : colors.mutedForeground }]}>
+                {s === "all" ? "הכל" : STATUS_LABELS[s as ProjectStatus]}
               </Text>
             </TouchableOpacity>
           ))}
@@ -151,15 +152,10 @@ export default function ProjectsScreen() {
             <TouchableOpacity
               key={s}
               onPress={() => setSortBy(s)}
-              style={[
-                styles.sortBtn,
-                { backgroundColor: sortBy === s ? colors.foreground : "transparent" },
-              ]}
+              style={[styles.sortBtn, { backgroundColor: sortBy === s ? colors.foreground : "transparent" }]}
             >
-              <Text
-                style={[styles.sortBtnText, { color: sortBy === s ? colors.background : colors.mutedForeground }]}
-              >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+              <Text style={[styles.sortBtnText, { color: sortBy === s ? colors.background : colors.mutedForeground }]}>
+                {SORT_LABELS[s]}
               </Text>
             </TouchableOpacity>
           ))}
@@ -170,9 +166,9 @@ export default function ProjectsScreen() {
         {filtered.length === 0 ? (
           <EmptyState
             icon="clipboard-text-outline"
-            title="No projects yet"
-            subtitle="Start tracking your crochet projects"
-            actionLabel="Add Project"
+            title="אין פרויקטים עדיין"
+            subtitle="התחילי לעקוב אחרי פרויקטי הסריגה שלך"
+            actionLabel="הוספי פרויקט"
             onAction={() => setShowCreate(true)}
           />
         ) : (
@@ -181,16 +177,10 @@ export default function ProjectsScreen() {
               key={project.id}
               project={project}
               colors={colors}
-              onPress={() => setSelectedProject(project)}
               onStatusChange={status => updateProject(project.id, { status })}
               onProgressChange={progress => updateProject(project.id, { progress })}
               onArchive={() => updateProject(project.id, { archived: !project.archived })}
-              onDelete={() => {
-                Alert.alert("Delete Project", `Delete "${project.name}"?`, [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Delete", style: "destructive", onPress: () => deleteProject(project.id) },
-                ]);
-              }}
+              onDelete={() => setDeleteTarget(project.id)}
             />
           ))
         )}
@@ -205,30 +195,41 @@ export default function ProjectsScreen() {
             color={colors.mutedForeground}
           />
           <Text style={[styles.archiveToggleText, { color: colors.mutedForeground }]}>
-            {showArchived ? "Hide" : "Show"} Archived
+            {showArchived ? "הסתירי" : "הציגי"} ארכיון
           </Text>
         </TouchableOpacity>
       </ScrollView>
 
+      <ConfirmDialog
+        visible={!!deleteTarget}
+        title="מחיקת פרויקט"
+        message={`למחוק את "${projectToDelete?.name}"?`}
+        confirmLabel="מחקי"
+        cancelLabel="ביטול"
+        destructive
+        onConfirm={() => { deleteProject(deleteTarget!); setDeleteTarget(null); }}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
       <Modal visible={showCreate} animationType="slide" presentationStyle="formSheet">
         <View style={[styles.modal, { backgroundColor: colors.background }]}>
           <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: colors.foreground }]}>New Project</Text>
+            <Text style={[styles.modalTitle, { color: colors.foreground }]}>פרויקט חדש</Text>
             <TouchableOpacity onPress={() => { resetForm(); setShowCreate(false); }}>
               <MaterialCommunityIcons name="close" size={24} color={colors.mutedForeground} />
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.modalBody}>
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Project Name *</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>שם הפרויקט *</Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newName}
               onChangeText={setNewName}
-              placeholder="e.g. Bunny Amigurumi"
+              placeholder="למשל: ארנב אמיגורומי"
               placeholderTextColor={colors.mutedForeground}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Status</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>סטטוס</Text>
             <View style={styles.statusGrid}>
               {(["planning", "in_progress", "paused", "finished"] as ProjectStatus[]).map(s => (
                 <TouchableOpacity
@@ -236,10 +237,7 @@ export default function ProjectsScreen() {
                   onPress={() => setNewStatus(s)}
                   style={[
                     styles.statusOption,
-                    {
-                      backgroundColor: newStatus === s ? STATUS_COLORS[s] : colors.muted,
-                      borderRadius: colors.radius / 2,
-                    },
+                    { backgroundColor: newStatus === s ? STATUS_COLORS[s] : colors.muted, borderRadius: colors.radius / 2 },
                   ]}
                 >
                   <Text style={[styles.statusOptionText, { color: newStatus === s ? "#fff" : colors.mutedForeground }]}>
@@ -249,7 +247,7 @@ export default function ProjectsScreen() {
               ))}
             </View>
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Category</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>קטגוריה</Text>
             <View style={styles.categoryRow}>
               {(["personal", "gift", "sale"] as const).map(c => (
                 <TouchableOpacity
@@ -257,10 +255,7 @@ export default function ProjectsScreen() {
                   onPress={() => setNewCategory(c)}
                   style={[
                     styles.categoryBtn,
-                    {
-                      backgroundColor: newCategory === c ? colors.primary : colors.muted,
-                      borderRadius: 20,
-                    },
+                    { backgroundColor: newCategory === c ? colors.primary : colors.muted, borderRadius: 20 },
                   ]}
                 >
                   <MaterialCommunityIcons
@@ -269,13 +264,13 @@ export default function ProjectsScreen() {
                     color={newCategory === c ? "#fff" : colors.mutedForeground}
                   />
                   <Text style={[styles.categoryBtnText, { color: newCategory === c ? "#fff" : colors.mutedForeground }]}>
-                    {c.charAt(0).toUpperCase() + c.slice(1)}
+                    {c === "gift" ? "מתנה" : c === "sale" ? "למכירה" : "אישי"}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Deadline (optional)</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>תאריך יעד (אופציונלי)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newDeadline}
@@ -284,27 +279,27 @@ export default function ProjectsScreen() {
               placeholderTextColor={colors.mutedForeground}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Materials</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>חומרים</Text>
             <TextInput
               style={[styles.input, styles.textarea, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newMaterials}
               onChangeText={setNewMaterials}
-              placeholder="Yarn, hook size, accessories..."
+              placeholder="חוט, מחט, אביזרים..."
               placeholderTextColor={colors.mutedForeground}
               multiline
             />
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Notes</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>הערות</Text>
             <TextInput
               style={[styles.input, styles.textarea, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newNotes}
               onChangeText={setNewNotes}
-              placeholder="Project notes, ideas..."
+              placeholder="הערות, רעיונות..."
               placeholderTextColor={colors.mutedForeground}
               multiline
             />
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Pattern Link</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>קישור לתבנית</Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newPatternLink}
@@ -318,7 +313,7 @@ export default function ProjectsScreen() {
               style={[styles.createBtn, { backgroundColor: colors.accent, borderRadius: colors.radius }]}
               onPress={handleCreate}
             >
-              <Text style={[styles.createBtnText, { color: "#fff" }]}>Create Project</Text>
+              <Text style={[styles.createBtnText, { color: "#fff" }]}>צרי פרויקט</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -327,18 +322,8 @@ export default function ProjectsScreen() {
   );
 }
 
-function ProjectCard({
-  project,
-  colors,
-  onPress,
-  onStatusChange,
-  onProgressChange,
-  onArchive,
-  onDelete,
-}: {
-  project: Project;
-  colors: any;
-  onPress: () => void;
+function ProjectCard({ project, colors, onStatusChange, onProgressChange, onArchive, onDelete }: {
+  project: Project; colors: any;
   onStatusChange: (s: ProjectStatus) => void;
   onProgressChange: (p: number) => void;
   onArchive: () => void;
@@ -351,58 +336,54 @@ function ProjectCard({
     <Card style={{ marginBottom: 12 }} onPress={() => setExpanded(v => !v)}>
       <View style={styles.projectHeader}>
         <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-        <Text style={[styles.projectName, { color: colors.foreground }]} numberOfLines={1}>
-          {project.name}
-        </Text>
+        <Text style={[styles.projectName, { color: colors.foreground }]} numberOfLines={1}>{project.name}</Text>
         <View style={styles.projectBadges}>
-          {project.isGift && (
-            <MaterialCommunityIcons name="gift-outline" size={16} color={colors.primary} />
-          )}
-          {project.isSaleItem && (
-            <MaterialCommunityIcons name="tag-outline" size={16} color={colors.accent} />
-          )}
+          {project.isGift && <MaterialCommunityIcons name="gift-outline" size={16} color={colors.primary} />}
+          {project.isSaleItem && <MaterialCommunityIcons name="tag-outline" size={16} color={colors.accent} />}
         </View>
-        <MaterialCommunityIcons
-          name={expanded ? "chevron-up" : "chevron-down"}
-          size={20}
-          color={colors.mutedForeground}
-        />
+        <MaterialCommunityIcons name={expanded ? "chevron-up" : "chevron-down"} size={20} color={colors.mutedForeground} />
       </View>
 
       <View style={styles.projectStatusRow}>
         <View style={[styles.statusPill, { backgroundColor: statusColor + "20" }]}>
-          <Text style={[styles.statusPillText, { color: statusColor }]}>
-            {STATUS_LABELS[project.status]}
-          </Text>
+          <Text style={[styles.statusPillText, { color: statusColor }]}>{STATUS_LABELS[project.status]}</Text>
         </View>
         {project.deadline && (
           <Text style={[styles.deadlineText, { color: colors.mutedForeground }]}>
-            Due {new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            עד {new Date(project.deadline).toLocaleDateString("he-IL", { month: "long", day: "numeric" })}
           </Text>
         )}
       </View>
 
-      <ProgressBar
-        progress={project.progress}
-        style={{ marginTop: 10 }}
-        color={statusColor}
-      />
+      <ProgressBar progress={project.progress} style={{ marginTop: 10 }} color={statusColor} />
 
       {expanded && (
         <View style={styles.expandedArea}>
-          <Text style={[styles.expandLabel, { color: colors.mutedForeground }]}>Progress</Text>
+          <Text style={[styles.expandLabel, { color: colors.mutedForeground }]}>התקדמות</Text>
           <View style={styles.progressBtns}>
             {[0, 25, 50, 75, 100].map(p => (
               <TouchableOpacity
                 key={p}
                 onPress={() => onProgressChange(p)}
-                style={[
-                  styles.progressBtn,
-                  { backgroundColor: project.progress >= p ? statusColor : colors.muted },
-                ]}
+                style={[styles.progressBtn, { backgroundColor: project.progress >= p ? statusColor : colors.muted }]}
               >
                 <Text style={[styles.progressBtnText, { color: project.progress >= p ? "#fff" : colors.mutedForeground }]}>
                   {p}%
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={[styles.expandLabel, { color: colors.mutedForeground }]}>שינוי סטטוס</Text>
+          <View style={styles.statusBtns}>
+            {(["planning", "in_progress", "paused", "finished"] as ProjectStatus[]).map(s => (
+              <TouchableOpacity
+                key={s}
+                onPress={() => onStatusChange(s)}
+                style={[styles.statusBtn, { backgroundColor: project.status === s ? STATUS_COLORS[s] : colors.muted }]}
+              >
+                <Text style={[styles.statusBtnText, { color: project.status === s ? "#fff" : colors.mutedForeground }]}>
+                  {STATUS_LABELS[s]}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -453,33 +434,20 @@ const styles = StyleSheet.create({
   statusPillText: { fontSize: 11, fontWeight: "700" },
   deadlineText: { fontSize: 11 },
   expandedArea: { marginTop: 12, borderTopWidth: 1, borderTopColor: "rgba(0,0,0,0.06)", paddingTop: 12 },
-  expandLabel: { fontSize: 12, fontWeight: "600", marginBottom: 8 },
+  expandLabel: { fontSize: 12, fontWeight: "600", marginBottom: 8, marginTop: 8 },
   progressBtns: { flexDirection: "row", gap: 8, marginBottom: 12 },
   progressBtn: { flex: 1, paddingVertical: 6, borderRadius: 8, alignItems: "center" },
   progressBtnText: { fontSize: 11, fontWeight: "700" },
+  statusBtns: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 },
+  statusBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  statusBtnText: { fontSize: 11, fontWeight: "700" },
   notesText: { fontSize: 13, lineHeight: 18, marginBottom: 12 },
   actionRow: { flexDirection: "row", gap: 8 },
   actionBtn: { padding: 10, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  archiveToggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    justifyContent: "center",
-    paddingVertical: 14,
-    marginTop: 8,
-    borderTopWidth: 1,
-  },
+  archiveToggle: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "center", paddingVertical: 14, marginTop: 8, borderTopWidth: 1 },
   archiveToggleText: { fontSize: 13, fontWeight: "600" },
   modal: { flex: 1 },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.06)",
-  },
+  modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "rgba(0,0,0,0.06)" },
   modalTitle: { fontSize: 20, fontWeight: "700" },
   modalBody: { padding: 20 },
   inputLabel: { fontSize: 13, fontWeight: "600", marginBottom: 6, marginTop: 16 },

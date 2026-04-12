@@ -3,7 +3,6 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   Modal,
   Platform,
@@ -15,8 +14,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/context/AppContext";
@@ -24,6 +23,13 @@ import type { Counter } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
 type CounterType = Counter["type"];
+
+const TYPE_LABELS: Record<CounterType, string> = {
+  rows: "שורות",
+  stitches: "תפרים",
+  rounds: "סיבובים",
+  repeats: "חזרות",
+};
 
 export default function CounterScreen() {
   const colors = useColors();
@@ -35,6 +41,8 @@ export default function CounterScreen() {
   const [newTarget, setNewTarget] = useState("");
   const [newType, setNewType] = useState<CounterType>("rows");
   const [newNotes, setNewNotes] = useState("");
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -61,40 +69,26 @@ export default function CounterScreen() {
     updateCounter(selected.id, { count: selected.count - 1 });
   }
 
-  function handleReset() {
+  function doReset() {
     if (!selected) return;
-    Alert.alert("Reset Counter", `Reset "${selected.name}" to 0?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Reset",
-        style: "destructive",
-        onPress: () => {
-          if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          updateCounter(selected.id, { count: 0 });
-        },
-      },
-    ]);
+    if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    updateCounter(selected.id, { count: 0 });
+    setConfirmReset(false);
   }
 
-  function handleDelete() {
+  function doDelete() {
     if (!selected) return;
-    Alert.alert("Delete Counter", `Delete "${selected.name}"?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => {
-          deleteCounter(selected.id);
-          setSelectedId(counters.filter(c => c.id !== selected.id)[0]?.id ?? null);
-        },
-      },
-    ]);
+    const remaining = counters.filter(c => c.id !== selected.id);
+    deleteCounter(selected.id);
+    setSelectedId(remaining[0]?.id ?? null);
+    setConfirmDelete(false);
   }
 
   function handleCreate() {
     if (!newName.trim()) return;
     const target = newTarget ? parseInt(newTarget) : undefined;
-    addCounter({ name: newName.trim(), count: 0, target, type: newType, notes: newNotes });
+    const newCounter = { name: newName.trim(), count: 0, target, type: newType, notes: newNotes };
+    addCounter(newCounter);
     setNewName("");
     setNewTarget("");
     setNewType("rows");
@@ -122,7 +116,7 @@ export default function CounterScreen() {
         style={[styles.header, { paddingTop: topPad + 12 }]}
       >
         <View style={styles.headerRow}>
-          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Counters</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>מונים</Text>
           <TouchableOpacity
             style={[styles.addBtn, { backgroundColor: colors.primary }]}
             onPress={() => setShowCreate(true)}
@@ -164,14 +158,17 @@ export default function CounterScreen() {
         <View style={styles.emptyWrapper}>
           <EmptyState
             icon="counter"
-            title="No counters yet"
-            subtitle="Create a counter for rows, stitches, rounds, or repeats"
-            actionLabel="Create Counter"
+            title="אין מונים עדיין"
+            subtitle="צרי מונה לשורות, תפרים, סיבובים או חזרות"
+            actionLabel="צרי מונה"
             onAction={() => setShowCreate(true)}
           />
         </View>
       ) : (
-        <View style={[styles.mainArea, { paddingBottom: bottomPad + 110 }]}>
+        <ScrollView
+          contentContainerStyle={[styles.mainArea, { paddingBottom: bottomPad + 110 }]}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.typeRow}>
             {(["rows", "stitches", "rounds", "repeats"] as CounterType[]).map(t => (
               <TouchableOpacity
@@ -191,7 +188,7 @@ export default function CounterScreen() {
                     { color: selected.type === t ? "#fff" : colors.mutedForeground },
                   ]}
                 >
-                  {t}
+                  {TYPE_LABELS[t]}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -201,7 +198,7 @@ export default function CounterScreen() {
             <View style={styles.progressArea}>
               <ProgressBar
                 progress={progress}
-                label={`${selected.count} / ${selected.target} ${selected.type}`}
+                label={`${selected.count} / ${selected.target} ${TYPE_LABELS[selected.type]}`}
                 color={typeColors[selected.type]}
                 height={10}
               />
@@ -216,7 +213,7 @@ export default function CounterScreen() {
             >
               <Text style={[styles.bigCount, { color: "#fff" }]}>{selected.count}</Text>
               <Text style={[styles.bigLabel, { color: "rgba(255,255,255,0.75)" }]}>
-                tap to count {selected.type}
+                לחצי לספור {TYPE_LABELS[selected.type]}
               </Text>
             </TouchableOpacity>
           </Animated.View>
@@ -232,7 +229,7 @@ export default function CounterScreen() {
 
             <TouchableOpacity
               style={[styles.controlBtn, { backgroundColor: colors.muted }]}
-              onPress={handleReset}
+              onPress={() => setConfirmReset(true)}
               activeOpacity={0.8}
             >
               <MaterialCommunityIcons name="refresh" size={24} color={colors.mutedForeground} />
@@ -240,7 +237,7 @@ export default function CounterScreen() {
 
             <TouchableOpacity
               style={[styles.controlBtn, { backgroundColor: colors.destructive + "20" }]}
-              onPress={handleDelete}
+              onPress={() => setConfirmDelete(true)}
               activeOpacity={0.8}
             >
               <MaterialCommunityIcons name="trash-can-outline" size={22} color={colors.destructive} />
@@ -249,32 +246,54 @@ export default function CounterScreen() {
 
           {selected.target ? (
             <Text style={[styles.targetInfo, { color: colors.mutedForeground }]}>
-              Target: {selected.target} {selected.type} — {Math.max(0, selected.target - selected.count)} remaining
+              יעד: {selected.target} {TYPE_LABELS[selected.type]} — נותרו {Math.max(0, selected.target - selected.count)}
             </Text>
           ) : null}
-        </View>
+        </ScrollView>
       )}
+
+      <ConfirmDialog
+        visible={confirmReset}
+        title="איפוס מונה"
+        message={`לאפס את "${selected?.name}" ל-0?`}
+        confirmLabel="אפסי"
+        cancelLabel="ביטול"
+        destructive
+        onConfirm={doReset}
+        onCancel={() => setConfirmReset(false)}
+      />
+
+      <ConfirmDialog
+        visible={confirmDelete}
+        title="מחיקת מונה"
+        message={`למחוק את "${selected?.name}"?`}
+        confirmLabel="מחקי"
+        cancelLabel="ביטול"
+        destructive
+        onConfirm={doDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
 
       <Modal visible={showCreate} animationType="slide" presentationStyle="formSheet">
         <View style={[styles.modal, { backgroundColor: colors.background }]}>
           <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: colors.foreground }]}>New Counter</Text>
+            <Text style={[styles.modalTitle, { color: colors.foreground }]}>מונה חדש</Text>
             <TouchableOpacity onPress={() => setShowCreate(false)}>
               <MaterialCommunityIcons name="close" size={24} color={colors.mutedForeground} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.modalBody}>
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Project Name</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>שם הפרויקט</Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newName}
               onChangeText={setNewName}
-              placeholder="e.g. Spring Bunny"
+              placeholder='למשל: ארנב האביב'
               placeholderTextColor={colors.mutedForeground}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Type</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>סוג</Text>
             <View style={styles.typeGrid}>
               {(["rows", "stitches", "rounds", "repeats"] as CounterType[]).map(t => (
                 <TouchableOpacity
@@ -289,28 +308,28 @@ export default function CounterScreen() {
                   ]}
                 >
                   <Text style={[styles.typeOptionText, { color: newType === t ? "#fff" : colors.mutedForeground }]}>
-                    {t}
+                    {TYPE_LABELS[t]}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Target (optional)</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>יעד (אופציונלי)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newTarget}
               onChangeText={setNewTarget}
-              placeholder="e.g. 50"
+              placeholder="למשל: 50"
               placeholderTextColor={colors.mutedForeground}
               keyboardType="number-pad"
             />
 
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>Notes (optional)</Text>
+            <Text style={[styles.inputLabel, { color: colors.foreground }]}>הערות (אופציונלי)</Text>
             <TextInput
               style={[styles.input, styles.textarea, { backgroundColor: colors.muted, color: colors.foreground, borderRadius: colors.radius }]}
               value={newNotes}
               onChangeText={setNewNotes}
-              placeholder="Any notes for this counter..."
+              placeholder="הערות למונה זה..."
               placeholderTextColor={colors.mutedForeground}
               multiline
             />
@@ -319,7 +338,7 @@ export default function CounterScreen() {
               style={[styles.createBtn, { backgroundColor: colors.primary, borderRadius: colors.radius }]}
               onPress={handleCreate}
             >
-              <Text style={[styles.createBtnText, { color: colors.primaryForeground }]}>Create Counter</Text>
+              <Text style={[styles.createBtnText, { color: colors.primaryForeground }]}>צרי מונה</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -338,16 +357,16 @@ const styles = StyleSheet.create({
   counterTab: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 8 },
   counterTabText: { fontSize: 13, fontWeight: "600" },
   emptyWrapper: { flex: 1, justifyContent: "center" },
-  mainArea: { flex: 1, alignItems: "center", paddingHorizontal: 24, paddingTop: 12 },
-  typeRow: { flexDirection: "row", gap: 8, marginBottom: 20 },
+  mainArea: { alignItems: "center", paddingHorizontal: 24, paddingTop: 12 },
+  typeRow: { flexDirection: "row", gap: 8, marginBottom: 20, flexWrap: "wrap", justifyContent: "center" },
   typeChip: { paddingHorizontal: 14, paddingVertical: 6 },
-  typeChipText: { fontSize: 12, fontWeight: "600", textTransform: "capitalize" },
+  typeChipText: { fontSize: 12, fontWeight: "600" },
   progressArea: { width: "100%", marginBottom: 20 },
-  bigCounterArea: { width: "100%", marginBottom: 32 },
+  bigCounterArea: { marginBottom: 32, alignItems: "center" },
   bigBtn: {
-    width: "100%",
-    aspectRatio: 1,
-    borderRadius: 200,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
@@ -355,15 +374,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 24,
     elevation: 10,
-    maxHeight: 260,
-    maxWidth: 260,
-    alignSelf: "center",
   },
   bigCount: { fontSize: 80, fontWeight: "800", letterSpacing: -3 },
-  bigLabel: { fontSize: 13, marginTop: 4 },
-  controlsRow: { flexDirection: "row", gap: 20 },
+  bigLabel: { fontSize: 13, marginTop: 4, textAlign: "center" },
+  controlsRow: { flexDirection: "row", gap: 20, marginBottom: 16 },
   controlBtn: { width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center" },
-  targetInfo: { marginTop: 20, fontSize: 13 },
+  targetInfo: { marginTop: 8, fontSize: 13, textAlign: "center" },
   modal: { flex: 1 },
   modalHeader: {
     flexDirection: "row",
@@ -381,7 +397,7 @@ const styles = StyleSheet.create({
   textarea: { height: 80, textAlignVertical: "top" },
   typeGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 4 },
   typeOption: { paddingHorizontal: 16, paddingVertical: 10 },
-  typeOptionText: { fontSize: 13, fontWeight: "600", textTransform: "capitalize" },
+  typeOptionText: { fontSize: 13, fontWeight: "600" },
   createBtn: { marginTop: 32, paddingVertical: 16, alignItems: "center" },
   createBtnText: { fontSize: 16, fontWeight: "700" },
 });

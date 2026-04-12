@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
-  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -22,13 +21,15 @@ import { useColors } from "@/hooks/useColors";
 const { width } = Dimensions.get("window");
 
 const QUOTES = [
-  "Every stitch is a little act of love.",
-  "Crochet is meditation with yarn.",
-  "One loop at a time, magic happens.",
-  "Your hands create warmth for the world.",
-  "Behind every beautiful piece is a patient heart.",
-  "Crochet: turning yarn into joy since forever.",
-  "Make it with love, give it with joy.",
+  "כל תפר הוא מעשה קטן של אהבה.",
+  "סריגה היא מדיטציה עם חוט.",
+  "לאט לאט, קסם קורה.",
+  "הידיים שלך יוצרות חום לעולם.",
+  "מאחורי כל יצירה יפה עומד לב סבלני.",
+  "סריגה: הופכת חוט לשמחה.",
+  "עשי זאת באהבה, תני זאת בשמחה.",
+  "כל לולאה מספרת סיפור.",
+  "היצירה שלך מביאה חיוך לכל מי שמקבל אותה.",
 ];
 
 export default function HomeScreen() {
@@ -55,7 +56,7 @@ export default function HomeScreen() {
 
   const hour = new Date().getHours();
   const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+    hour < 12 ? "בוקר טוב" : hour < 17 ? "צהריים טובים" : "ערב טוב";
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
@@ -93,28 +94,28 @@ export default function HomeScreen() {
           <StatCard
             icon="lightning-bolt"
             value={activeProjects.length.toString()}
-            label="Active"
+            label="פעיל"
             color={colors.primary}
             colors={colors}
           />
           <StatCard
             icon="check-circle-outline"
             value={completedProjects.length.toString()}
-            label="Done"
+            label="הושלם"
             color={colors.accent}
             colors={colors}
           />
           <StatCard
             icon="palette-swatch-outline"
             value={yarnStash.length.toString()}
-            label="Yarns"
+            label="חוטים"
             color={colors.lavender}
             colors={colors}
           />
           <StatCard
             icon="numeric"
             value={counters.length.toString()}
-            label="Counters"
+            label="מונים"
             color={colors.warning}
             colors={colors}
           />
@@ -122,7 +123,7 @@ export default function HomeScreen() {
 
         {activeProjects.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="Continue Working" onSeeAll={() => router.push("/(tabs)/projects")} colors={colors} />
+            <SectionHeader title="המשך עבודה" onSeeAll={() => router.push("/(tabs)/projects")} colors={colors} />
             {activeProjects.slice(0, 2).map(project => (
               <Card
                 key={project.id}
@@ -140,7 +141,7 @@ export default function HomeScreen() {
                 </View>
                 {project.deadline && (
                   <Text style={[styles.projectDeadline, { color: colors.mutedForeground }]}>
-                    Due {new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    עד {new Date(project.deadline).toLocaleDateString("he-IL", { month: "long", day: "numeric" })}
                   </Text>
                 )}
                 <ProgressBar progress={project.progress} style={{ marginTop: 10 }} />
@@ -151,48 +152,50 @@ export default function HomeScreen() {
 
         {topCounter && (
           <View style={styles.section}>
-            <SectionHeader title="Quick Counter" onSeeAll={() => router.push("/(tabs)/counter")} colors={colors} />
+            <SectionHeader title="מונה מהיר" onSeeAll={() => router.push("/(tabs)/counter")} colors={colors} />
             <Card elevated style={styles.counterCard}>
               <Text style={[styles.counterName, { color: colors.mutedForeground }]}>{topCounter.name}</Text>
               <Text style={[styles.counterValue, { color: colors.primary }]}>{topCounter.count}</Text>
-              <Text style={[styles.counterType, { color: colors.mutedForeground }]}>{topCounter.type}</Text>
+              <Text style={[styles.counterType, { color: colors.mutedForeground }]}>
+                {topCounter.type === "rows" ? "שורות" : topCounter.type === "stitches" ? "תפרים" : topCounter.type === "rounds" ? "סיבובים" : "חזרות"}
+              </Text>
               <TouchableOpacity
                 style={[styles.counterBtn, { backgroundColor: colors.primary }]}
                 onPress={() => router.push("/(tabs)/counter")}
               >
-                <Text style={[styles.counterBtnText, { color: colors.primaryForeground }]}>Open Counter</Text>
+                <Text style={[styles.counterBtnText, { color: colors.primaryForeground }]}>פתח מונה</Text>
               </TouchableOpacity>
             </Card>
           </View>
         )}
 
         <View style={styles.section}>
-          <SectionHeader title="Quick Access" colors={colors} />
+          <SectionHeader title="גישה מהירה" colors={colors} />
           <View style={styles.quickGrid}>
             <QuickCard
               icon="calculator"
-              label="Price Calc"
+              label="מחשבון מחיר"
               color={colors.accent}
               colors={colors}
               onPress={() => router.push("/(tabs)/tools")}
             />
             <QuickCard
               icon="bookshelf"
-              label="Library"
+              label="ספרייה"
               color={colors.lavender}
               colors={colors}
               onPress={() => router.push("/(tabs)/library")}
             />
             <QuickCard
-              icon="palette-swatch-variant"
-              label="Yarn Stash"
+              icon="palette-swatch-outline"
+              label="מלאי חוטים"
               color={colors.sage}
               colors={colors}
               onPress={() => router.push("/(tabs)/tools")}
             />
             <QuickCard
               icon="notebook-outline"
-              label="Notes"
+              label="הערות"
               color={colors.warning}
               colors={colors}
               onPress={() => router.push("/(tabs)/tools")}
@@ -201,7 +204,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.section}>
-          <SectionHeader title="Today's Inspiration" onSeeAll={() => router.push("/(tabs)/library")} colors={colors} />
+          <SectionHeader title="השראה להיום" onSeeAll={() => router.push("/(tabs)/library")} colors={colors} />
           <Card onPress={() => router.push("/(tabs)/library")} style={styles.inspirationCard}>
             <LinearGradient
               colors={[colors.primary + "15", colors.lavender + "15"]}
@@ -209,14 +212,14 @@ export default function HomeScreen() {
             >
               <MaterialCommunityIcons name="star-shooting" size={32} color={colors.primary} />
               <Text style={[styles.inspirationTitle, { color: colors.foreground }]}>
-                Discover your next project
+                גלי את הפרויקט הבא שלך
               </Text>
               <Text style={[styles.inspirationSub, { color: colors.mutedForeground }]}>
-                Browse 15+ curated crochet ideas
+                עיין ברעיונות סריגה נבחרים
               </Text>
               <View style={[styles.surpriseBtn, { backgroundColor: colors.primary }]}>
                 <Text style={[styles.surpriseBtnText, { color: colors.primaryForeground }]}>
-                  Surprise Me
+                  הפתיעי אותי
                 </Text>
               </View>
             </LinearGradient>
@@ -227,19 +230,7 @@ export default function HomeScreen() {
   );
 }
 
-function StatCard({
-  icon,
-  value,
-  label,
-  color,
-  colors,
-}: {
-  icon: string;
-  value: string;
-  label: string;
-  color: string;
-  colors: any;
-}) {
+function StatCard({ icon, value, label, color, colors }: { icon: string; value: string; label: string; color: string; colors: any }) {
   return (
     <View style={[styles.statCard, { backgroundColor: color + "15", borderRadius: colors.radius }]}>
       <MaterialCommunityIcons name={icon as any} size={20} color={color} />
@@ -249,40 +240,20 @@ function StatCard({
   );
 }
 
-function SectionHeader({
-  title,
-  onSeeAll,
-  colors,
-}: {
-  title: string;
-  onSeeAll?: () => void;
-  colors: any;
-}) {
+function SectionHeader({ title, onSeeAll, colors }: { title: string; onSeeAll?: () => void; colors: any }) {
   return (
     <View style={styles.sectionHeader}>
       <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{title}</Text>
       {onSeeAll && (
         <TouchableOpacity onPress={onSeeAll}>
-          <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
+          <Text style={[styles.seeAll, { color: colors.primary }]}>ראי הכל</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 }
 
-function QuickCard({
-  icon,
-  label,
-  color,
-  colors,
-  onPress,
-}: {
-  icon: string;
-  label: string;
-  color: string;
-  colors: any;
-  onPress: () => void;
-}) {
+function QuickCard({ icon, label, color, colors, onPress }: { icon: string; label: string; color: string; colors: any; onPress: () => void }) {
   return (
     <TouchableOpacity
       style={[styles.quickCard, { backgroundColor: color + "15", borderRadius: colors.radius }]}
@@ -311,15 +282,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  quoteText: { fontSize: 14, fontStyle: "italic", lineHeight: 20, marginTop: 4, fontWeight: "500" },
+  quoteText: { fontSize: 14, fontStyle: "italic", lineHeight: 22, marginTop: 4, fontWeight: "500" },
   content: { paddingHorizontal: 20 },
   statsRow: { flexDirection: "row", gap: 10, marginTop: 20, marginBottom: 8 },
-  statCard: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 14,
-    gap: 4,
-  },
+  statCard: { flex: 1, alignItems: "center", paddingVertical: 14, gap: 4 },
   statValue: { fontSize: 18, fontWeight: "700" },
   statLabel: { fontSize: 10, fontWeight: "500" },
   section: { marginTop: 24 },
@@ -334,7 +300,7 @@ const styles = StyleSheet.create({
   counterCard: { alignItems: "center", paddingVertical: 24 },
   counterName: { fontSize: 13, fontWeight: "500", marginBottom: 8 },
   counterValue: { fontSize: 64, fontWeight: "800", letterSpacing: -2 },
-  counterType: { fontSize: 12, marginTop: 4, textTransform: "capitalize" },
+  counterType: { fontSize: 12, marginTop: 4 },
   counterBtn: { marginTop: 16, paddingHorizontal: 28, paddingVertical: 12, borderRadius: 24 },
   counterBtnText: { fontSize: 14, fontWeight: "700" },
   quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },

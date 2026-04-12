@@ -52,7 +52,6 @@ export interface WishlistItem {
   id: string;
   title: string;
   description?: string;
-  imageUrl?: string;
   priority: "low" | "medium" | "high";
   tag: "weekend" | "gift" | "big_project" | "seasonal" | "other";
   libraryItemId?: string;
@@ -75,8 +74,6 @@ export interface Reminder {
   description?: string;
   type: "project" | "materials" | "deadline" | "daily" | "weekly";
   date?: string;
-  time?: string;
-  projectId?: string;
   done: boolean;
   createdAt: string;
 }
@@ -133,12 +130,12 @@ const genId = () => Date.now().toString() + Math.random().toString(36).substr(2,
 const SAMPLE_PROJECTS: Project[] = [
   {
     id: "p1",
-    name: "Spring Bunny Amigurumi",
+    name: "ארנב אביב אמיגורומי",
     status: "in_progress",
     startDate: "2026-03-15",
     deadline: "2026-04-20",
-    notes: "Making for Easter gift. Using pastel pink yarn.",
-    materials: "Pink DK yarn, safety eyes 10mm, polyester stuffing",
+    notes: "מתנה לפסח. חוט ורוד פסטל.",
+    materials: "חוט DK ורוד, עיניות בטיחות 10mm, מילוי פוליאסטר",
     patternLink: "",
     progress: 65,
     isGift: true,
@@ -150,11 +147,11 @@ const SAMPLE_PROJECTS: Project[] = [
   },
   {
     id: "p2",
-    name: "Floral Market Bag",
+    name: "תיק שוק עם פרחים",
     status: "planning",
     startDate: "2026-04-01",
-    notes: "Summer project. Sage green cotton yarn.",
-    materials: "Cotton worsted yarn, 5mm hook",
+    notes: "פרויקט קיץ. חוט כותנה ירוק מרווה.",
+    materials: "חוט כותנה וורסטד, מחט 5mm",
     patternLink: "",
     progress: 0,
     isGift: false,
@@ -170,9 +167,9 @@ const SAMPLE_YARN: YarnItem[] = [
   {
     id: "y1",
     brand: "Lion Brand",
-    colorName: "Dusty Rose",
+    colorName: "ורוד אבקה",
     colorHex: "#c27d82",
-    type: "Acrylic",
+    type: "אקריל",
     weight: "worsted",
     amount: 200,
     unit: "grams",
@@ -182,9 +179,9 @@ const SAMPLE_YARN: YarnItem[] = [
   {
     id: "y2",
     brand: "Paintbox Simply",
-    colorName: "Sage Green",
+    colorName: "ירוק מרווה",
     colorHex: "#8faa8b",
-    type: "Cotton",
+    type: "כותנה",
     weight: "dk",
     amount: 150,
     unit: "grams",
@@ -194,9 +191,9 @@ const SAMPLE_YARN: YarnItem[] = [
   {
     id: "y3",
     brand: "Drops",
-    colorName: "Cream",
+    colorName: "קרם",
     colorHex: "#f5ead9",
-    type: "Merino Wool",
+    type: "צמר מרינו",
     weight: "fingering",
     amount: 50,
     unit: "grams",
@@ -215,18 +212,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [profile, setProfile] = useState<UserProfile>({
-    name: "Jona",
+    name: "ג'ונה",
     joinDate: new Date().toISOString(),
-    bio: "Crochet lover & creator",
+    bio: "אוהבת סריגה ויצירה",
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    saveData();
-  }, [counters, projects, yarnStash, wishlist, notes, reminders, favorites, profile]);
+  useEffect(() => { loadData(); }, []);
+  useEffect(() => { saveData(); }, [counters, projects, yarnStash, wishlist, notes, reminders, favorites, profile]);
 
   async function loadData() {
     try {
@@ -287,10 +279,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const deleteWishlistItem = (id: string) => setWishlist(prev => prev.filter(w => w.id !== id));
 
   const addNote = (n: Omit<Note, "id" | "createdAt" | "updatedAt">) =>
-    setNotes(prev => [
-      ...prev,
-      { ...n, id: genId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    ]);
+    setNotes(prev => [...prev, { ...n, id: genId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }]);
   const updateNote = (id: string, data: Partial<Note>) =>
     setNotes(prev => prev.map(n => (n.id === id ? { ...n, ...data, updatedAt: new Date().toISOString() } : n)));
   const deleteNote = (id: string) => setNotes(prev => prev.filter(n => n.id !== id));
@@ -302,45 +291,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const deleteReminder = (id: string) => setReminders(prev => prev.filter(r => r.id !== id));
 
   const updateProfile = (data: Partial<UserProfile>) => setProfile(prev => ({ ...prev, ...data }));
-
   const toggleFavorite = (libraryItemId: string) =>
     setFavorites(prev =>
       prev.includes(libraryItemId) ? prev.filter(id => id !== libraryItemId) : [...prev, libraryItemId]
     );
 
   return (
-    <AppContext.Provider
-      value={{
-        counters,
-        projects,
-        yarnStash,
-        wishlist,
-        notes,
-        reminders,
-        profile,
-        favorites,
-        addCounter,
-        updateCounter,
-        deleteCounter,
-        addProject,
-        updateProject,
-        deleteProject,
-        addYarn,
-        updateYarn,
-        deleteYarn,
-        addWishlistItem,
-        updateWishlistItem,
-        deleteWishlistItem,
-        addNote,
-        updateNote,
-        deleteNote,
-        addReminder,
-        updateReminder,
-        deleteReminder,
-        updateProfile,
-        toggleFavorite,
-      }}
-    >
+    <AppContext.Provider value={{
+      counters, projects, yarnStash, wishlist, notes, reminders, profile, favorites,
+      addCounter, updateCounter, deleteCounter,
+      addProject, updateProject, deleteProject,
+      addYarn, updateYarn, deleteYarn,
+      addWishlistItem, updateWishlistItem, deleteWishlistItem,
+      addNote, updateNote, deleteNote,
+      addReminder, updateReminder, deleteReminder,
+      updateProfile, toggleFavorite,
+    }}>
       {children}
     </AppContext.Provider>
   );

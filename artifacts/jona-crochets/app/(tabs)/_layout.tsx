@@ -6,7 +6,6 @@ import { SymbolView } from "expo-symbols";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
-
 import { useColors } from "@/hooks/useColors";
 
 function NativeTabLayout() {
@@ -14,23 +13,23 @@ function NativeTabLayout() {
     <NativeTabs>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "house.fill", selected: "house.fill" }} />
-        <Label>Home</Label>
+        <Label>בית</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="counter">
-        <Icon sf={{ default: "number.circle", selected: "number.circle.fill" }} />
-        <Label>Counter</Label>
+        <Icon sf={{ default: "number.circle.fill", selected: "number.circle.fill" }} />
+        <Label>מונה</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="library">
-        <Icon sf={{ default: "books.vertical", selected: "books.vertical.fill" }} />
-        <Label>Library</Label>
+        <Icon sf={{ default: "books.vertical.fill", selected: "books.vertical.fill" }} />
+        <Label>ספרייה</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="projects">
-        <Icon sf={{ default: "folder", selected: "folder.fill" }} />
-        <Label>Projects</Label>
+        <Icon sf={{ default: "folder.fill", selected: "folder.fill" }} />
+        <Label>פרויקטים</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="tools">
-        <Icon sf={{ default: "wrench.and.screwdriver", selected: "wrench.and.screwdriver.fill" }} />
-        <Label>Tools</Label>
+        <Icon sf={{ default: "wrench.and.screwdriver.fill", selected: "wrench.and.screwdriver.fill" }} />
+        <Label>כלים</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -60,79 +59,51 @@ function ClassicTabLayout() {
         },
         tabBarBackground: () =>
           isIOS ? (
-            <BlurView
-              intensity={80}
-              tint={isDark ? "dark" : "systemChromeMaterial"}
-              style={StyleSheet.absoluteFill}
-            />
+            <BlurView intensity={80} tint={isDark ? "dark" : "systemChromeMaterial"} style={StyleSheet.absoluteFill} />
           ) : isWeb ? (
             <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]} />
           ) : null,
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: "600",
-          marginTop: 2,
-        },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "600", marginTop: 2 },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "בית",
           tabBarIcon: ({ color, size }) =>
-            isIOS ? (
-              <SymbolView name="house.fill" tintColor={color} size={size} />
-            ) : (
-              <MaterialCommunityIcons name="home" size={size} color={color} />
-            ),
+            isIOS ? <SymbolView name="house.fill" tintColor={color} size={size} /> : <MaterialCommunityIcons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="counter"
         options={{
-          title: "Counter",
+          title: "מונה",
           tabBarIcon: ({ color, size }) =>
-            isIOS ? (
-              <SymbolView name="number.circle.fill" tintColor={color} size={size} />
-            ) : (
-              <MaterialCommunityIcons name="counter" size={size} color={color} />
-            ),
+            isIOS ? <SymbolView name="number.circle.fill" tintColor={color} size={size} /> : <MaterialCommunityIcons name="counter" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="library"
         options={{
-          title: "Library",
+          title: "ספרייה",
           tabBarIcon: ({ color, size }) =>
-            isIOS ? (
-              <SymbolView name="books.vertical.fill" tintColor={color} size={size} />
-            ) : (
-              <MaterialCommunityIcons name="bookshelf" size={size} color={color} />
-            ),
+            isIOS ? <SymbolView name="books.vertical.fill" tintColor={color} size={size} /> : <MaterialCommunityIcons name="bookshelf" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="projects"
         options={{
-          title: "Projects",
+          title: "פרויקטים",
           tabBarIcon: ({ color, size }) =>
-            isIOS ? (
-              <SymbolView name="folder.fill" tintColor={color} size={size} />
-            ) : (
-              <MaterialCommunityIcons name="folder-outline" size={size} color={color} />
-            ),
+            isIOS ? <SymbolView name="folder.fill" tintColor={color} size={size} /> : <MaterialCommunityIcons name="folder-outline" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="tools"
         options={{
-          title: "Tools",
+          title: "כלים",
           tabBarIcon: ({ color, size }) =>
-            isIOS ? (
-              <SymbolView name="wrench.and.screwdriver.fill" tintColor={color} size={size} />
-            ) : (
-              <MaterialCommunityIcons name="tools" size={size} color={color} />
-            ),
+            isIOS ? <SymbolView name="wrench.and.screwdriver.fill" tintColor={color} size={size} /> : <MaterialCommunityIcons name="tools" size={size} color={color} />,
         }}
       />
     </Tabs>
@@ -140,8 +111,6 @@ function ClassicTabLayout() {
 }
 
 export default function TabLayout() {
-  if (isLiquidGlassAvailable()) {
-    return <NativeTabLayout />;
-  }
+  if (isLiquidGlassAvailable()) return <NativeTabLayout />;
   return <ClassicTabLayout />;
 }
