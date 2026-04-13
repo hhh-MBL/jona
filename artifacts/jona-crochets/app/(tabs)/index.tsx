@@ -72,6 +72,7 @@ export default function HomeScreen() {
       >
         <View style={styles.headerTop}>
           <View>
+            <Text style={[styles.welcome, { color: colors.primary }]}>ברוך הבא יונוש</Text>
             <Text style={[styles.greeting, { color: colors.mutedForeground }]}>{greeting},</Text>
             <Text style={[styles.name, { color: colors.foreground }]}>{profile.name}</Text>
           </View>
@@ -270,6 +271,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { paddingHorizontal: 20, paddingBottom: 24 },
   headerTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 },
+  welcome: { fontSize: 14, fontWeight: "800", marginBottom: 2 },
   greeting: { fontSize: 14, fontWeight: "500" },
   name: { fontSize: 28, fontWeight: "700", letterSpacing: -0.5 },
   avatarBtn: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },

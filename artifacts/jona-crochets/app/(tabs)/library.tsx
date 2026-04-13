@@ -65,6 +65,18 @@ export default function LibraryScreen() {
     setSelectedItem(random);
   }
 
+  function openPatternFallback() {
+    if (!selectedItem) return;
+    const query = encodeURIComponent(`תבנית סריגה ${selectedItem.title}`);
+    Linking.openURL(`https://www.google.com/search?q=${query}`);
+  }
+
+  async function copyPatternDetails() {
+    if (!selectedItem) return;
+    await Linking.openURL(`mailto:?subject=${encodeURIComponent(`תבנית: ${selectedItem.title}`)}&body=${encodeURIComponent(`חומרים:
+- ${selectedItem.materials.join("\n- ")}\n\nתגיות: ${selectedItem.tags.join(", ")}`)}`);
+  }
+
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   return (
@@ -184,6 +196,8 @@ export default function LibraryScreen() {
           colors={colors}
           isFavorite={favorites.includes(selectedItem.id)}
           onToggleFavorite={() => toggleFavorite(selectedItem.id)}
+          onOpenPatternSearch={openPatternFallback}
+          onSharePatternSummary={copyPatternDetails}
           onClose={() => setSelectedItem(null)}
         />
       )}
@@ -241,8 +255,14 @@ function LibraryCard({ item, colors, isFavorite, onToggleFavorite, onPress }: {
   );
 }
 
-function ItemDetailModal({ item, colors, isFavorite, onToggleFavorite, onClose }: {
-  item: LibraryItem; colors: any; isFavorite: boolean; onToggleFavorite: () => void; onClose: () => void;
+function ItemDetailModal({ item, colors, isFavorite, onToggleFavorite, onOpenPatternSearch, onSharePatternSummary, onClose }: {
+  item: LibraryItem;
+  colors: any;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  onOpenPatternSearch: () => void;
+  onSharePatternSummary: () => void;
+  onClose: () => void;
 }) {
   const levelColor = LEVEL_COLORS[item.skillLevel];
 
@@ -307,8 +327,22 @@ function ItemDetailModal({ item, colors, isFavorite, onToggleFavorite, onClose }
               <View style={[styles.noPatternArea, { backgroundColor: colors.muted, borderRadius: colors.radius }]}>
                 <MaterialCommunityIcons name="information-outline" size={20} color={colors.mutedForeground} />
                 <Text style={[styles.noPatternText, { color: colors.mutedForeground }]}>
-                  קישור לתבנית יתווסף בקרוב
+                  אין קישור ישיר — הוספנו לך פתיחה מהירה לחיפוש תבנית
                 </Text>
+                <TouchableOpacity
+                  style={[styles.fallbackBtn, { backgroundColor: colors.primary }]}
+                  onPress={onOpenPatternSearch}
+                >
+                  <MaterialCommunityIcons name="magnify" size={16} color="#fff" />
+                  <Text style={styles.fallbackBtnText}>חפשי תבנית אונליין</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.fallbackSecondaryBtn, { borderColor: colors.border }]}
+                  onPress={onSharePatternSummary}
+                >
+                  <MaterialCommunityIcons name="email-outline" size={16} color={colors.mutedForeground} />
+                  <Text style={[styles.fallbackSecondaryText, { color: colors.mutedForeground }]}>שלחי לעצמך סיכום</Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -378,6 +412,10 @@ const styles = StyleSheet.create({
   tagText: { fontSize: 12 },
   patternBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14 },
   patternBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
-  noPatternArea: { flexDirection: "row", alignItems: "center", gap: 8, padding: 14 },
-  noPatternText: { fontSize: 13 },
+  noPatternArea: { alignItems: "center", gap: 8, padding: 14 },
+  noPatternText: { fontSize: 13, textAlign: "center" },
+  fallbackBtn: { marginTop: 10, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12 },
+  fallbackBtnText: { color: "#fff", fontWeight: "700" },
+  fallbackSecondaryBtn: { marginTop: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 9, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1 },
+  fallbackSecondaryText: { fontWeight: "600" },
 });
