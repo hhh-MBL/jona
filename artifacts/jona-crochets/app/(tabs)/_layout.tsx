@@ -63,7 +63,7 @@ export default function TabLayout() {
         options={{
           title: "ספרייה",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bookshelf" size={size} color={color} />
+            <MaterialCommunityIcons name="book-open-variant" size={size} color={color} />
           ),
         }}
       />
@@ -81,7 +81,7 @@ export default function TabLayout() {
         options={{
           title: "כלים",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="tools" size={size} color={color} />
+            <MaterialCommunityIcons name="wrench" size={size} color={color} />
           ),
         }}
       />

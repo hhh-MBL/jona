@@ -1,4 +1,4 @@
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -79,7 +79,7 @@ export default function HomeScreen() {
             style={[styles.avatarBtn, { backgroundColor: colors.primary + "20" }]}
             onPress={() => router.push("/(tabs)/tools")}
           >
-            <MaterialCommunityIcons name="needle" size={28} color={colors.primary} />
+            <MaterialCommunityIcons name="heart" size={28} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
@@ -174,7 +174,7 @@ export default function HomeScreen() {
           <View style={styles.quickGrid}>
             <QuickCard
               icon="calculator"
-              label="מחשבון מחיר"
+              label="מחשבון מתנות"
               color={colors.accent}
               colors={colors}
               onPress={() => router.push("/(tabs)/tools")}
@@ -195,7 +195,7 @@ export default function HomeScreen() {
             />
             <QuickCard
               icon="notebook-outline"
-              label="הערות"
+              label="רעיונות שלך"
               color={colors.warning}
               colors={colors}
               onPress={() => router.push("/(tabs)/tools")}
@@ -210,7 +210,7 @@ export default function HomeScreen() {
               colors={[colors.primary + "15", colors.lavender + "15"]}
               style={styles.inspirationGrad}
             >
-              <MaterialCommunityIcons name="star-shooting" size={32} color={colors.primary} />
+              <MaterialCommunityIcons name="star-four-points" size={32} color={colors.primary} />
               <Text style={[styles.inspirationTitle, { color: colors.foreground }]}>
                 גלי את הפרויקט הבא שלך
               </Text>
