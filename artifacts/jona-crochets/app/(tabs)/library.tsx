@@ -207,7 +207,7 @@ function LibraryCard({ item, colors, isFavorite, onToggleFavorite, onPress }: {
         style={[styles.cardGradient, { borderRadius: colors.radius }]}
       >
         <View style={styles.cardIconArea}>
-          <MaterialCommunityIcons name="needle" size={36} color={levelColor} />
+          <MaterialCommunityIcons name="heart" size={36} color={levelColor} />
           {item.isFeatured && (
             <View style={[styles.featuredBadge, { backgroundColor: colors.primary }]}>
               <MaterialCommunityIcons name="star" size={10} color="#fff" />
@@ -264,7 +264,7 @@ function ItemDetailModal({ item, colors, isFavorite, onToggleFavorite, onClose }
 
         <ScrollView contentContainerStyle={styles.modalBody}>
           <LinearGradient colors={[levelColor + "30", colors.background]} style={styles.modalHero}>
-            <MaterialCommunityIcons name="needle" size={72} color={levelColor} />
+            <MaterialCommunityIcons name="heart" size={72} color={levelColor} />
           </LinearGradient>
 
           <View style={styles.modalInfo}>

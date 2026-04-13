@@ -129,7 +129,7 @@ function CalculatorTab({ colors }: { colors: any }) {
   const [packagingCost, setPackagingCost] = useState("");
   const [shippingCost, setShippingCost] = useState("");
   const [customOrderFee, setCustomOrderFee] = useState("");
-  const [giftMode, setGiftMode] = useState(false);
+  const [giftMode, setGiftMode] = useState(true);
 
   const totalMaterials =
     parseFloat(materialCost || "0") +
@@ -144,9 +144,6 @@ function CalculatorTab({ colors }: { colors: any }) {
   const margin = parseFloat(profitMargin || "0") / 100;
   const sellingPrice = giftMode ? totalCost : totalCost / (1 - margin);
 
-  const low = sellingPrice * 0.85;
-  const standard = sellingPrice;
-  const premium = sellingPrice * 1.25;
 
   const formatPrice = (v: number) => `₪${v.toFixed(2)}`;
 
@@ -154,8 +151,8 @@ function CalculatorTab({ colors }: { colors: any }) {
     <ScrollView contentContainerStyle={[styles.tabContent, { paddingBottom: 110 }]}>
       <View style={[styles.giftToggle, { backgroundColor: colors.muted, borderRadius: colors.radius }]}>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.giftLabel, { color: colors.foreground }]}>מצב מתנה</Text>
-          <Text style={[styles.giftDesc, { color: colors.mutedForeground }]}>מציג עלות בלבד, ללא רווח</Text>
+          <Text style={[styles.giftLabel, { color: colors.foreground }]}>מצב אישי</Text>
+          <Text style={[styles.giftDesc, { color: colors.mutedForeground }]}>האפליקציה מותאמת לשימוש אישי ולא למכירה</Text>
         </View>
         <TouchableOpacity
           style={[styles.giftBtn, { backgroundColor: giftMode ? colors.primary : colors.border }]}
@@ -190,7 +187,7 @@ function CalculatorTab({ colors }: { colors: any }) {
 
       <View style={[styles.resultCard, { backgroundColor: colors.primary + "15", borderRadius: colors.radius }]}>
         <Text style={[styles.resultTitle, { color: colors.foreground }]}>
-          {giftMode ? "עלות הפרויקט" : "מחיר מומלץ למכירה"}
+          {giftMode ? "עלות הפרויקט" : "הערכת עלות לפרויקט"}
         </Text>
         <Text style={[styles.resultPrice, { color: colors.primary }]}>{formatPrice(sellingPrice)}</Text>
 
@@ -202,15 +199,6 @@ function CalculatorTab({ colors }: { colors: any }) {
           {!giftMode && <BreakdownRow label="אחוז רווח" value={`${profitMargin}%`} colors={colors} />}
         </View>
       </View>
-
-      {!giftMode && totalCost > 0 && (
-        <View style={[styles.marketCard, { backgroundColor: colors.muted, borderRadius: colors.radius }]}>
-          <Text style={[styles.marketTitle, { color: colors.foreground }]}>הצעות שוק</Text>
-          <MarketRow label="מחיר נמוך" value={formatPrice(low)} color={colors.accent} colors={colors} />
-          <MarketRow label="מחיר סטנדרטי" value={formatPrice(standard)} color={colors.primary} colors={colors} />
-          <MarketRow label="מחיר פרימיום" value={formatPrice(premium)} color={colors.lavender} colors={colors} />
-        </View>
-      )}
     </ScrollView>
   );
 }
