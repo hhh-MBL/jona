@@ -127,94 +127,18 @@ const AppContext = createContext<AppContextType | null>(null);
 
 const genId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
 
-const SAMPLE_PROJECTS: Project[] = [
-  {
-    id: "p1",
-    name: "ארנב אביב אמיגורומי",
-    status: "in_progress",
-    startDate: "2026-03-15",
-    deadline: "2026-04-20",
-    notes: "מתנה לפסח. חוט ורוד פסטל.",
-    materials: "חוט DK ורוד, עיניות בטיחות 10mm, מילוי פוליאסטר",
-    patternLink: "",
-    progress: 65,
-    isGift: true,
-    isSaleItem: false,
-    isPersonal: false,
-    category: "gift",
-    archived: false,
-    createdAt: "2026-03-15T10:00:00.000Z",
-  },
-  {
-    id: "p2",
-    name: "תיק שוק עם פרחים",
-    status: "planning",
-    startDate: "2026-04-01",
-    notes: "פרויקט קיץ. חוט כותנה ירוק מרווה.",
-    materials: "חוט כותנה וורסטד, מחט 5mm",
-    patternLink: "",
-    progress: 0,
-    isGift: false,
-    isSaleItem: true,
-    isPersonal: false,
-    category: "sale",
-    archived: false,
-    createdAt: "2026-04-01T09:00:00.000Z",
-  },
-];
-
-const SAMPLE_YARN: YarnItem[] = [
-  {
-    id: "y1",
-    brand: "Lion Brand",
-    colorName: "ורוד אבקה",
-    colorHex: "#c27d82",
-    type: "אקריל",
-    weight: "worsted",
-    amount: 200,
-    unit: "grams",
-    hookSize: "5mm",
-    createdAt: "2026-01-10T10:00:00.000Z",
-  },
-  {
-    id: "y2",
-    brand: "Paintbox Simply",
-    colorName: "ירוק מרווה",
-    colorHex: "#8faa8b",
-    type: "כותנה",
-    weight: "dk",
-    amount: 150,
-    unit: "grams",
-    hookSize: "4mm",
-    createdAt: "2026-02-05T10:00:00.000Z",
-  },
-  {
-    id: "y3",
-    brand: "Drops",
-    colorName: "קרם",
-    colorHex: "#f5ead9",
-    type: "צמר מרינו",
-    weight: "fingering",
-    amount: 50,
-    unit: "grams",
-    hookSize: "2.5mm",
-    lowStockThreshold: 100,
-    createdAt: "2026-02-20T10:00:00.000Z",
-  },
-];
-
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [counters, setCounters] = useState<Counter[]>([]);
-  const [projects, setProjects] = useState<Project[]>(SAMPLE_PROJECTS);
-  const [yarnStash, setYarnStash] = useState<YarnItem[]>(SAMPLE_YARN);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [yarnStash, setYarnStash] = useState<YarnItem[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [profile, setProfile] = useState<UserProfile>({
-    name: "אהובה שלי",
+    name: "",
     joinDate: new Date().toISOString(),
-    bio: "האפליקציה הפרטית שלך לסריגה באהבה",
+    bio: "",
   });
 
   useEffect(() => { loadData(); }, []);
