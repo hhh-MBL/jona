@@ -1,4 +1,4 @@
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -72,6 +72,7 @@ export default function HomeScreen() {
       >
         <View style={styles.headerTop}>
           <View>
+            <Text style={[styles.welcome, { color: colors.primary }]}>ברוך הבא יונוש</Text>
             <Text style={[styles.greeting, { color: colors.mutedForeground }]}>{greeting},</Text>
             <Text style={[styles.name, { color: colors.foreground }]}>{profile.name}</Text>
           </View>
@@ -79,7 +80,7 @@ export default function HomeScreen() {
             style={[styles.avatarBtn, { backgroundColor: colors.primary + "20" }]}
             onPress={() => router.push("/(tabs)/tools")}
           >
-            <MaterialCommunityIcons name="needle" size={28} color={colors.primary} />
+            <MaterialCommunityIcons name="heart" size={28} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
@@ -174,7 +175,7 @@ export default function HomeScreen() {
           <View style={styles.quickGrid}>
             <QuickCard
               icon="calculator"
-              label="מחשבון מחיר"
+              label="מחשבון מתנות"
               color={colors.accent}
               colors={colors}
               onPress={() => router.push("/(tabs)/tools")}
@@ -195,7 +196,7 @@ export default function HomeScreen() {
             />
             <QuickCard
               icon="notebook-outline"
-              label="הערות"
+              label="רעיונות שלך"
               color={colors.warning}
               colors={colors}
               onPress={() => router.push("/(tabs)/tools")}
@@ -210,7 +211,7 @@ export default function HomeScreen() {
               colors={[colors.primary + "15", colors.lavender + "15"]}
               style={styles.inspirationGrad}
             >
-              <MaterialCommunityIcons name="star-shooting" size={32} color={colors.primary} />
+              <MaterialCommunityIcons name="star-four-points" size={32} color={colors.primary} />
               <Text style={[styles.inspirationTitle, { color: colors.foreground }]}>
                 גלי את הפרויקט הבא שלך
               </Text>
@@ -270,6 +271,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { paddingHorizontal: 20, paddingBottom: 24 },
   headerTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 },
+  welcome: { fontSize: 14, fontWeight: "800", marginBottom: 2 },
   greeting: { fontSize: 14, fontWeight: "500" },
   name: { fontSize: 28, fontWeight: "700", letterSpacing: -0.5 },
   avatarBtn: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
@@ -289,7 +291,7 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 18, fontWeight: "700" },
   statLabel: { fontSize: 10, fontWeight: "500" },
   section: { marginTop: 24 },
-  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
+  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
   sectionTitle: { fontSize: 17, fontWeight: "700" },
   seeAll: { fontSize: 13, fontWeight: "600" },
   projectCard: { marginBottom: 10 },
@@ -301,10 +303,10 @@ const styles = StyleSheet.create({
   counterName: { fontSize: 13, fontWeight: "500", marginBottom: 8 },
   counterValue: { fontSize: 64, fontWeight: "800", letterSpacing: -2 },
   counterType: { fontSize: 12, marginTop: 4 },
-  counterBtn: { marginTop: 16, paddingHorizontal: 28, paddingVertical: 12, borderRadius: 24 },
+  counterBtn: { marginTop: 16, paddingHorizontal: 28, paddingVertical: 13, borderRadius: 24, minHeight: 46, justifyContent: "center" },
   counterBtnText: { fontSize: 14, fontWeight: "700" },
-  quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  quickCard: { width: (width - 50) / 2, paddingVertical: 18, paddingHorizontal: 16, gap: 8 },
+  quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
+  quickCard: { width: (width - 52) / 2, paddingVertical: 20, paddingHorizontal: 16, gap: 10, minHeight: 108, justifyContent: "center" },
   quickLabel: { fontSize: 13, fontWeight: "600" },
   inspirationCard: { padding: 0, overflow: "hidden" },
   inspirationGrad: { padding: 24, alignItems: "center", gap: 8 },

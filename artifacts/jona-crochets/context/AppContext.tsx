@@ -212,9 +212,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [profile, setProfile] = useState<UserProfile>({
-    name: "ג'ונה",
+    name: "",
     joinDate: new Date().toISOString(),
-    bio: "אוהבת סריגה ויצירה",
+    bio: "",
   });
 
   useEffect(() => { loadData(); }, []);
