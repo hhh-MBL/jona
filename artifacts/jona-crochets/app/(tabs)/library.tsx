@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useMemo, useState } from "react";
 import {
@@ -35,6 +36,37 @@ const LEVEL_LABELS: Record<string, string> = {
   advanced: "מתקדמת",
 };
 
+interface OpenLibraryDoc {
+  key: string;
+  title: string;
+  author_name?: string[];
+  first_publish_year?: number;
+}
+
+async function fetchCrochetIdeas(): Promise<LibraryItem[]> {
+  const response = await fetch("https://openlibrary.org/search.json?q=crochet+pattern&limit=20");
+  if (!response.ok) throw new Error("Failed fetching crochet data");
+  const data = await response.json() as { docs?: OpenLibraryDoc[] };
+  const docs = data.docs ?? [];
+
+  return docs
+    .filter(doc => doc.key && doc.title)
+    .slice(0, 10)
+    .map((doc, index) => ({
+      id: `openlib-${doc.key.replace(/\//g, "-")}`,
+      title: doc.title,
+      description: `השראה מספרי סריגה · ${doc.author_name?.[0] ?? "ללא מחבר"}${doc.first_publish_year ? ` (${doc.first_publish_year})` : ""}`,
+      category: "accessories",
+      skillLevel: index % 3 === 0 ? "beginner" : index % 3 === 1 ? "intermediate" : "advanced",
+      estimatedTime: "לפי התבנית",
+      materials: ["חוט מתאים לפרויקט", "מחט סריגה לפי ההמלצה", "סמני תכים"],
+      yarnType: "משתנה לפי הפרויקט",
+      hookSize: "לפי המלצת התבנית",
+      patternUrl: `https://openlibrary.org${doc.key}`,
+      tags: ["ספרים", "השראה", "crochet"],
+    }));
+}
+
 export default function LibraryScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -43,9 +75,14 @@ export default function LibraryScreen() {
   const [search, setSearch] = useState("");
   const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null);
   const [filter, setFilter] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
+  const { data: fetchedItems = [] } = useQuery({
+    queryKey: ["crochet-library-ideas"],
+    queryFn: fetchCrochetIdeas,
+    staleTime: 1000 * 60 * 60 * 12,
+  });
 
   const filtered = useMemo(() => {
-    let items = LIBRARY_ITEMS;
+    let items = [...fetchedItems, ...LIBRARY_ITEMS];
     if (selectedCategory !== "all") items = items.filter(i => i.category === selectedCategory);
     if (filter !== "all") items = items.filter(i => i.skillLevel === filter);
     if (search.trim()) {
@@ -58,7 +95,7 @@ export default function LibraryScreen() {
       );
     }
     return items;
-  }, [selectedCategory, filter, search]);
+  }, [selectedCategory, filter, search, fetchedItems]);
 
   function handleSurprise() {
     const random = LIBRARY_ITEMS[Math.floor(Math.random() * LIBRARY_ITEMS.length)];
@@ -367,17 +404,17 @@ const cardWidth = (width - 48) / 2;
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { paddingHorizontal: 20, paddingBottom: 12 },
-  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
+  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16, gap: 12 },
   headerTitle: { fontSize: 28, fontWeight: "700" },
-  surpriseBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
-  surpriseBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
+  surpriseBtn: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 22, minHeight: 44 },
+  surpriseBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
   searchBar: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 12 },
   searchInput: { flex: 1, fontSize: 15 },
   catScroll: { marginBottom: 8 },
-  catChip: { paddingHorizontal: 14, paddingVertical: 7, marginRight: 8 },
+  catChip: { paddingHorizontal: 16, paddingVertical: 9, marginRight: 8, minHeight: 40, justifyContent: "center" },
   catChipText: { fontSize: 13, fontWeight: "600" },
-  levelChip: { paddingHorizontal: 12, paddingVertical: 5, marginRight: 8, borderWidth: 1.5 },
-  levelChipText: { fontSize: 12, fontWeight: "600" },
+  levelChip: { paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, borderWidth: 1.5, minHeight: 40, justifyContent: "center" },
+  levelChipText: { fontSize: 13, fontWeight: "600" },
   columnWrapper: { paddingHorizontal: 16, gap: 12 },
   list: { paddingTop: 12, paddingBottom: 110 },
   card: { width: cardWidth, borderWidth: 1, overflow: "hidden" },
@@ -410,12 +447,12 @@ const styles = StyleSheet.create({
   tagsRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 24 },
   tag: { paddingHorizontal: 10, paddingVertical: 4 },
   tagText: { fontSize: 12 },
-  patternBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14 },
+  patternBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14, minHeight: 48 },
   patternBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
-  noPatternArea: { alignItems: "center", gap: 8, padding: 14 },
+  noPatternArea: { alignItems: "center", gap: 10, padding: 16 },
   noPatternText: { fontSize: 13, textAlign: "center" },
-  fallbackBtn: { marginTop: 10, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12 },
+  fallbackBtn: { marginTop: 10, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 12, minHeight: 46, alignSelf: "stretch" },
   fallbackBtnText: { color: "#fff", fontWeight: "700" },
-  fallbackSecondaryBtn: { marginTop: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 9, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1 },
+  fallbackSecondaryBtn: { marginTop: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 11, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, minHeight: 44, alignSelf: "stretch" },
   fallbackSecondaryText: { fontWeight: "600" },
 });
